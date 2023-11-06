@@ -12,5 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class S3Configuration {
     private String bucketName;
     private String region;
+    private  String endpoint;
 
 }

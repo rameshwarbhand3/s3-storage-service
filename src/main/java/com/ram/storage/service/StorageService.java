@@ -5,12 +5,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.ram.storage.configuration.S3Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Service
@@ -41,18 +41,17 @@ public class StorageService {
     }
 
 
-    public void download(String objectKey) throws IOException {
+    public byte[] download(String objectKey) {
+        byte[] content;
         S3Object s3Object = s3Client.getObject(s3Configuration.getBucketName(), objectKey);
         S3ObjectInputStream s3is = s3Object.getObjectContent();
-        FileOutputStream fos = new FileOutputStream(s3Object.getKey());
-
-        byte[] read_buf = new byte[1024];
-        int read_len = 0;
-        while ((read_len = s3is.read(read_buf)) > 0) {
-            fos.write(read_buf, 0, read_len);
+        try {
+            content = IOUtils.toByteArray(s3is);
+            s3is.close();
+        } catch (IOException e) {
+            throw new RuntimeException("DOWNLOAD_FILE_ERROR", e);
         }
-        s3is.close();
-        fos.close();
+        return content;
     }
 
     private static ObjectMetadata getObjectMetadata(MultipartFile file) {

@@ -1,5 +1,6 @@
 package com.ram.storage.configuration;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -16,7 +17,9 @@ public class SpringBeanConfiguration {
         //ProfileCredentialsProvider profileCredentialsProvider = new ProfileCredentialsProvider("ram");
         return AmazonS3ClientBuilder.standard()
                 //.withCredentials(profileCredentialsProvider)
-                .withRegion(Regions.fromName(s3Configuration.getRegion()))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3Configuration.getEndpoint(), s3Configuration.getRegion()))
+                //.withRegion(Regions.fromName(s3Configuration.getRegion()))
+
                 .build();
     }
 }
